@@ -3,10 +3,10 @@ import dns from 'dns';
 import { promises as fsp } from 'fs';
 import Fastify from 'fastify';
 import FastifyCors from 'fastify-cors';
-import { serialize, Binary, Long } from 'bson';
-import crypto, { scrypt } from 'crypto';
 import sign from './sign.js';
+import verify from './verify/node.js';
 import path from 'path';
+import crypto from 'crypto';
 
 let publicKey: string;
 let privateKey: string;
@@ -73,6 +73,27 @@ fastify.post<{ Body: { hash: string } }>('/sign', {
 
   // Finally, send the time signature to the client
   reply.send(signed);
+});
+
+fastify.post<{ Body: { hash: string, signature: string } }>('/verify', {
+  preValidation: (request, reply, done) => {
+    const { hash, signature } = request.body;
+    if (!hash) done(new Error('No hash provided.'));
+    if (!hash.match(/^[0-9a-f]+$/i)) done(new Error('Provided hash must be a hex string.'));
+    else if (hash.length != 64) done(new Error('Provided hash must be 64 bytes long.'));
+    else if (!signature) done(new Error('No signature provided.'));
+    else if (!signature.match(/^.+\|[a-zA-Z0-9+/]+=*$/)) done(new Error('Invalid signature format.'));
+    else done(undefined);
+  }
+}, async (request, reply) => {
+  const { hash, signature } = request.body;
+  // Convert hash to buffer
+  const hashBuffer = Buffer.from(hash, 'hex');
+
+  const [ isValid, signatureData ] = await verify(hashBuffer, signature, publicKey);
+
+  if (!isValid) return reply.code(401).send(`Invalid signature: ${signatureData.message}`);
+  reply.send(signatureData);
 });
 
 // Public key route

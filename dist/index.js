@@ -9,6 +9,7 @@ const fs_1 = require("fs");
 const fastify_1 = __importDefault(require("fastify"));
 const fastify_cors_1 = __importDefault(require("fastify-cors"));
 const sign_js_1 = __importDefault(require("./sign.js"));
+const node_js_1 = __importDefault(require("./verify/node.js"));
 const path_1 = __importDefault(require("path"));
 let publicKey;
 let privateKey;
@@ -69,6 +70,31 @@ fastify.post('/sign', {
     const signed = `${env_js_1.default.domain}|${signature}`;
     // Finally, send the time signature to the client
     reply.send(signed);
+});
+fastify.post('/verify', {
+    preValidation: (request, reply, done) => {
+        const { hash, signature } = request.body;
+        if (!hash)
+            done(new Error('No hash provided.'));
+        if (!hash.match(/^[0-9a-f]+$/i))
+            done(new Error('Provided hash must be a hex string.'));
+        else if (hash.length != 64)
+            done(new Error('Provided hash must be 64 bytes long.'));
+        else if (!signature)
+            done(new Error('No signature provided.'));
+        else if (!signature.match(/^.+\|[a-zA-Z0-9+/]+=*$/))
+            done(new Error('Invalid signature format.'));
+        else
+            done(undefined);
+    }
+}, async (request, reply) => {
+    const { hash, signature } = request.body;
+    // Convert hash to buffer
+    const hashBuffer = Buffer.from(hash, 'hex');
+    const [isValid, signatureData] = await (0, node_js_1.default)(hashBuffer, signature, publicKey);
+    if (!isValid)
+        return reply.code(401).send(`Invalid signature: ${signatureData.message}`);
+    reply.send(signatureData);
 });
 // Public key route
 fastify.get('/public', async (request, reply) => {

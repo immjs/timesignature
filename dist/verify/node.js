@@ -22,36 +22,43 @@ function decrypt(chunk, password) {
     result = Buffer.concat([decipher.update(chunk), decipher.final()]);
     return result;
 }
-async function verify(str, signature) {
-    // Get string's hash and turn it into base64
-    const hash = crypto_1.default.createHash('sha256').update(str).digest('hex');
+async function verify(str, signature, pubkey) {
+    let hash;
+    if (!(str instanceof Buffer)) {
+        // Get string's hash and turn it into base64
+        hash = crypto_1.default.createHash('sha256').update(str).digest('hex');
+    }
+    else {
+        hash = str.toString('hex');
+    }
     const [domain, encrypted] = signature.split('|');
-    let pubkeyStr;
-    try {
-        // Fetch key from the dns
-        const pubkeyDns = new Promise((resolve, reject) => {
-            dns_1.default.resolveTxt(domain, (err, txt) => {
-                if (err) {
-                    reject(err);
-                    return;
-                }
-                resolve(`-----BEGIN PUBLIC KEY-----\n${txt[0].join('')}\n-----END PUBLIC KEY-----`);
+    if (!pubkey) {
+        let pubkeyStr;
+        try {
+            // Fetch key from the dns
+            const pubkeyDns = new Promise((resolve, reject) => {
+                dns_1.default.resolveTxt(domain, (err, txt) => {
+                    if (err) {
+                        reject(err);
+                        return;
+                    }
+                    resolve(`-----BEGIN PUBLIC KEY-----\n${txt[0].join('')}\n-----END PUBLIC KEY-----`);
+                });
             });
-        });
-        // Fetch key over HTTP(S)
-        const pubkeyHttp = (0, node_fetch_1.default)(`https://${domain}/public`).then(res => res.text());
-        pubkeyStr = await Promise.any([pubkeyDns, pubkeyHttp]);
-    }
-    catch (err) {
-        return [false, new Error('Failed to fetch public key from DNS and HTTP')];
-    }
-    let pubkey;
-    try {
-        // Import RSA public decryption key
-        pubkey = crypto_1.default.createPublicKey(pubkeyStr);
-    }
-    catch (err) {
-        return [false, new Error('Failed to import public key')];
+            // Fetch key over HTTP(S)
+            const pubkeyHttp = (0, node_fetch_1.default)(`https://${domain}/public`).then(res => res.text());
+            pubkeyStr = await Promise.any([pubkeyDns, pubkeyHttp]);
+        }
+        catch (err) {
+            return [false, new Error('Failed to fetch public key from DNS and HTTP')];
+        }
+        try {
+            // Import RSA public decryption key
+            pubkey = crypto_1.default.createPublicKey(pubkeyStr);
+        }
+        catch (err) {
+            return [false, new Error('Failed to import public key')];
+        }
     }
     let decryptedBinary;
     try {
