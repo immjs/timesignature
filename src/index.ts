@@ -4,12 +4,19 @@ import { promises as fsp } from 'fs';
 import Fastify from 'fastify';
 import FastifyCors from 'fastify-cors';
 import { serialize, Binary, Long } from 'bson';
-import crypto from 'crypto';
+import crypto, { scrypt } from 'crypto';
+import sign from './sign.js';
+import path from 'path';
 
 let publicKey: string;
 let privateKey: string;
 
-const privateKeyPromise = fsp.readFile(env.privateKeyPath, 'utf8')
+// Get dirname of the file (es modules)
+// const dirname = fileURLToPath(path.dirname(import.meta.url));
+const dirname = __dirname;
+const toAbsolute = (relpath: string) => path.resolve(dirname, '..', relpath)
+
+const privateKeyPromise = fsp.readFile(toAbsolute(env.privateKeyPath), 'utf8')
   .then((data) => {
     privateKey = data;
   });
@@ -21,7 +28,7 @@ dns.resolveTxt(env.domain, async (err, txt) => {
     process.exit(1);
   }
   
-  publicKey = await fsp.readFile(env.publicKeyPath, 'utf8');
+  publicKey = await fsp.readFile(toAbsolute(env.publicKeyPath), 'utf8');
 
   const publicKeyNoSurround = publicKey.replace(/-----BEGIN PUBLIC KEY-----\n|\n-----END PUBLIC KEY-----/g, '');
 
@@ -59,44 +66,10 @@ fastify.post<{ Body: { hash: string } }>('/sign', {
     else done(undefined);
   }
 }, async (request, reply) => {
-  // We will assume that the hash is valid
-  // It doesn't matter if it's not, user takes the toll
-  const hash = request.body.hash;
-
-  // Turn hash into a binary
-  const hashBinary = new Binary(Buffer.from(hash, 'hex'));
-
-  // Current time but starting from Feb 8th 2022
-  // This is when I asked my girlfriend out
-  // EDIT literally 5 seconds later: its actually Jan 25th :facepalm:
-  // Shame on me :NotLikeThis:
-
-  // Ironic, isn't it? You're supposed to trust an individual
-  // who throws a additional month's worth of seconds
-  // in the signed message for personal reasons.
-
-  // I really hope we don't break up.
-  const askedHerOut = 1643143800000;
-  const now = new Date().getTime();
-  const ourEpoch = new Long(now - askedHerOut);
-
-  // Construct the BSON that will serve as signature
-  const bson = {
-    hash: hashBinary,
-    time: ourEpoch,
-  };
-
-  // Serialize the BSON
-  const bsonBinary = serialize(bson);
-
-  // Encrypt the BSON with the private key
-  const encryptedBinary = crypto.privateEncrypt(privateKey, bsonBinary);
-
-  // Turn the encrypted BSON into a base64 string
-  const encrypted = encryptedBinary.toString('base64');
+  const signature = await sign(request.body.hash, privateKey);
 
   // Concatenate with our domain
-  const signed = `${env.domain}|${encrypted}`;
+  const signed = `${env.domain}|${signature}`;
 
   // Finally, send the time signature to the client
   reply.send(signed);

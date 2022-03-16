@@ -1,4 +1,5 @@
-import BSON from 'bson';
+"use strict";
+/* import BSON from 'bson';
 
 // stolen from https://stackoverflow.com/a/21797381
 function base64ToArrayBuffer(base64: string) {
@@ -20,20 +21,11 @@ export default async function verify(str: string, signature: string) {
 
   // Fetch key from the web server
   const pubkeyStr = await fetch(`https://${domain}/public`).then(res => res.text());
+  const pubkeyStrNoHF = pubkeyStr.replace(/-----BEGIN PUBLIC KEY-----|-----END PUBLIC KEY-----/g, '');
+
+  // Import RSA public decryption key
   const pubkey = await crypto.subtle.importKey(
-    'spki',
-    base64ToArrayBuffer(pubkeyStr),
-    {
-      name: 'RSA-OAEP',
-      hash: {
-        name: 'SHA-256',
-      }
-    },
-    false,
-    [
-      'decrypt',
-    ],
-  );
+    'pkcs8', base64ToArrayBuffer(pubkeyStrNoHF), { name: 'RSA-OAEP', hash: 'SHA-256' }, false, ['decrypt']);
 
   // Decrypt the signature
   const encryptedBinary = base64ToArrayBuffer(encrypted);
@@ -58,4 +50,5 @@ export default async function verify(str: string, signature: string) {
   } else {
     return [false, null];
   }
-}
+} */
+// FROZEN for now as I cannot find a way to decrypt the second layer of encryption in the browser

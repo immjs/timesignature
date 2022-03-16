@@ -1,23 +1,32 @@
-import env from './env.js';
-import dns from 'dns';
-import { promises as fsp } from 'fs';
-import Fastify from 'fastify';
-import FastifyCors from 'fastify-cors';
-import { serialize, Binary, Long } from 'bson';
-import crypto from 'crypto';
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const env_js_1 = __importDefault(require("./env.js"));
+const dns_1 = __importDefault(require("dns"));
+const fs_1 = require("fs");
+const fastify_1 = __importDefault(require("fastify"));
+const fastify_cors_1 = __importDefault(require("fastify-cors"));
+const sign_js_1 = __importDefault(require("./sign.js"));
+const path_1 = __importDefault(require("path"));
 let publicKey;
 let privateKey;
-const privateKeyPromise = fsp.readFile(env.privateKeyPath, 'utf8')
+// Get dirname of the file (es modules)
+// const dirname = fileURLToPath(path.dirname(import.meta.url));
+const dirname = __dirname;
+const toAbsolute = (relpath) => path_1.default.resolve(dirname, '..', relpath);
+const privateKeyPromise = fs_1.promises.readFile(toAbsolute(env_js_1.default.privateKeyPath), 'utf8')
     .then((data) => {
     privateKey = data;
 });
 // Verify that TXT record is same as public key
-dns.resolveTxt(env.domain, async (err, txt) => {
+dns_1.default.resolveTxt(env_js_1.default.domain, async (err, txt) => {
     if (err) {
         console.error(err);
         process.exit(1);
     }
-    publicKey = await fsp.readFile(env.publicKeyPath, 'utf8');
+    publicKey = await fs_1.promises.readFile(toAbsolute(env_js_1.default.publicKeyPath), 'utf8');
     const publicKeyNoSurround = publicKey.replace(/-----BEGIN PUBLIC KEY-----\n|\n-----END PUBLIC KEY-----/g, '');
     if (txt[0].join('') !== publicKeyNoSurround.trim()) {
         console.error('Public key does not match TXT record. Please set your TXT record to the public key (without the header and footer).');
@@ -36,9 +45,9 @@ ${publicKeyNoSurround}`);
         });
     }
 });
-const fastify = Fastify();
+const fastify = (0, fastify_1.default)();
 // Allow all origins
-fastify.register(FastifyCors, {
+fastify.register(fastify_cors_1.default, {
     origin: true,
 });
 // Time sign magic
@@ -55,35 +64,9 @@ fastify.post('/sign', {
             done(undefined);
     }
 }, async (request, reply) => {
-    // We will assume that the hash is valid
-    // It doesn't matter if it's not, user takes the toll
-    const hash = request.body.hash;
-    // Turn hash into a binary
-    const hashBinary = new Binary(Buffer.from(hash, 'hex'));
-    // Current time but starting from Feb 8th 2022
-    // This is when I asked my girlfriend out
-    // EDIT literally 5 seconds later: its actually Jan 25th :facepalm:
-    // Shame on me :NotLikeThis:
-    // Ironic, isn't it? You're supposed to trust an individual
-    // who throws a additional month's worth of seconds
-    // in the signed message for personal reasons.
-    // I really hope we don't break up.
-    const askedHerOut = 1643143800000;
-    const now = new Date().getTime();
-    const ourEpoch = new Long(now - askedHerOut);
-    // Construct the BSON that will serve as signature
-    const bson = {
-        hash: hashBinary,
-        time: ourEpoch,
-    };
-    // Serialize the BSON
-    const bsonBinary = serialize(bson);
-    // Encrypt the BSON with the private key
-    const encryptedBinary = crypto.privateEncrypt(privateKey, bsonBinary);
-    // Turn the encrypted BSON into a base64 string
-    const encrypted = encryptedBinary.toString('base64');
+    const signature = await (0, sign_js_1.default)(request.body.hash, privateKey);
     // Concatenate with our domain
-    const signed = `${env.domain}|${encrypted}`;
+    const signed = `${env_js_1.default.domain}|${signature}`;
     // Finally, send the time signature to the client
     reply.send(signed);
 });
@@ -92,4 +75,4 @@ fastify.get('/public', async (request, reply) => {
     // Send the public key
     reply.send(publicKey);
 });
-export default fastify;
+exports.default = fastify;
