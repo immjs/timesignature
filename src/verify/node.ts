@@ -46,7 +46,7 @@ export default async function verify(
     try {
       // Fetch key from the dns
       const pubkeyDns: Promise<string> = new Promise((resolve, reject) => {
-        dns.resolveTxt(domain, (err, txt) => {
+        dns.resolveTxt((domain.match(/^[^:]+(\.[^:]+)+(?=:\d+)/g) || ['ts.immjs.dev'])[0], (err, txt) => { // Since it's the oldest time sign server alive :)
           if (err) {
             reject(err);
             return;
@@ -56,7 +56,7 @@ export default async function verify(
         });
       });
       // Fetch key over HTTP(S)
-      const pubkeyHttp: Promise<string> = fetch(`https://${domain}/public`).then(res => res.text());
+      const pubkeyHttp: Promise<string> = fetch(`${domain}/public`).then(res => res.text());
       pubkeyStr = await Promise.any([pubkeyDns, pubkeyHttp]);
     } catch (err) {
       return [false, new Error('Failed to fetch public key from DNS and HTTP')];

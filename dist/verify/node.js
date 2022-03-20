@@ -37,7 +37,7 @@ async function verify(str, signature, pubkey) {
         try {
             // Fetch key from the dns
             const pubkeyDns = new Promise((resolve, reject) => {
-                dns_1.default.resolveTxt(domain, (err, txt) => {
+                dns_1.default.resolveTxt((domain.match(/^[^:]+(\.[^:]+)+(?=:\d+)/g) || ['ts.immjs.dev'])[0], (err, txt) => {
                     if (err) {
                         reject(err);
                         return;
@@ -46,7 +46,7 @@ async function verify(str, signature, pubkey) {
                 });
             });
             // Fetch key over HTTP(S)
-            const pubkeyHttp = (0, node_fetch_1.default)(`https://${domain}/public`).then(res => res.text());
+            const pubkeyHttp = (0, node_fetch_1.default)(`${domain}/public`).then(res => res.text());
             pubkeyStr = await Promise.any([pubkeyDns, pubkeyHttp]);
         }
         catch (err) {

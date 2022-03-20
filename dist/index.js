@@ -82,7 +82,7 @@ fastify.post('/verify', {
             done(new Error('Provided hash must be 64 bytes long.'));
         else if (!signature)
             done(new Error('No signature provided.'));
-        else if (!signature.match(/^.+\|[a-zA-Z0-9+/]+=*$/))
+        else if (!signature.match(/^.*\|[a-zA-Z0-9+/]+=*$/))
             done(new Error('Invalid signature format.'));
         else
             done(undefined);

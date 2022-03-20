@@ -6,7 +6,6 @@ import FastifyCors from 'fastify-cors';
 import sign from './sign.js';
 import verify from './verify/node.js';
 import path from 'path';
-import crypto from 'crypto';
 
 let publicKey: string;
 let privateKey: string;
@@ -82,7 +81,7 @@ fastify.post<{ Body: { hash: string, signature: string } }>('/verify', {
     if (!hash.match(/^[0-9a-f]+$/i)) done(new Error('Provided hash must be a hex string.'));
     else if (hash.length != 64) done(new Error('Provided hash must be 64 bytes long.'));
     else if (!signature) done(new Error('No signature provided.'));
-    else if (!signature.match(/^.+\|[a-zA-Z0-9+/]+=*$/)) done(new Error('Invalid signature format.'));
+    else if (!signature.match(/^([^:]+(\.[^:]+)*(?=:\d+))?\|[a-zA-Z0-9+/]+=*$/)) done(new Error('Invalid signature format.'));
     else done(undefined);
   }
 }, async (request, reply) => {
