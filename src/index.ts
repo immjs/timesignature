@@ -55,8 +55,13 @@ fastify.register(FastifyCors, {
   origin: true,
 });
 
+// Allow for static files
+fastify.register(require('fastify-static'), {
+  root: toAbsolute('public'),
+});
+
 // Time sign magic
-fastify.post<{ Body: { hash: string } }>('/sign', {
+fastify.post<{ Body: { hash: string } }>('/api/sign', {
   preValidation: (request, reply, done) => {
     const { hash } = request.body;
     if (!hash) done(new Error('No hash provided.'));
@@ -74,7 +79,7 @@ fastify.post<{ Body: { hash: string } }>('/sign', {
   reply.send(signed);
 });
 
-fastify.post<{ Body: { hash: string, signature: string } }>('/verify', {
+fastify.post<{ Body: { hash: string, signature: string } }>('/api/verify', {
   preValidation: (request, reply, done) => {
     const { hash, signature } = request.body;
     if (!hash) done(new Error('No hash provided.'));
@@ -96,7 +101,7 @@ fastify.post<{ Body: { hash: string, signature: string } }>('/verify', {
 });
 
 // Public key route
-fastify.get('/public', async (request, reply) => {
+fastify.get('/api/public', async (request, reply) => {
   // Send the public key
   reply.send(publicKey);
 });

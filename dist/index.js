@@ -51,8 +51,12 @@ const fastify = (0, fastify_1.default)();
 fastify.register(fastify_cors_1.default, {
     origin: true,
 });
+// Allow for static files
+fastify.register(require('fastify-static'), {
+    root: toAbsolute('public'),
+});
 // Time sign magic
-fastify.post('/sign', {
+fastify.post('/api/sign', {
     preValidation: (request, reply, done) => {
         const { hash } = request.body;
         if (!hash)
@@ -71,7 +75,7 @@ fastify.post('/sign', {
     // Finally, send the time signature to the client
     reply.send(signed);
 });
-fastify.post('/verify', {
+fastify.post('/api/verify', {
     preValidation: (request, reply, done) => {
         const { hash, signature } = request.body;
         if (!hash)
@@ -82,7 +86,7 @@ fastify.post('/verify', {
             done(new Error('Provided hash must be 64 bytes long.'));
         else if (!signature)
             done(new Error('No signature provided.'));
-        else if (!signature.match(/^.*\|[a-zA-Z0-9+/]+=*$/))
+        else if (!signature.match(/^([^:]+(\.[^:]+)*(?=:\d+))?\|[a-zA-Z0-9+/]+=*$/))
             done(new Error('Invalid signature format.'));
         else
             done(undefined);
@@ -97,7 +101,7 @@ fastify.post('/verify', {
     reply.send(signatureData);
 });
 // Public key route
-fastify.get('/public', async (request, reply) => {
+fastify.get('/api/public', async (request, reply) => {
     // Send the public key
     reply.send(publicKey);
 });
