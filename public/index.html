@@ -1,0 +1,162 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:wght@400;700&display=swap" rel="stylesheet">
+  <link href="./style.css" rel="stylesheet">
+  <title>Document</title>
+</head>
+<body>
+  <div class="header">
+    <img src="./ts.svg" width="256">
+    <h1>Time signature</h1>
+    <h2>A cryptographically secure way of assigning a timestamp to a file.<br/>
+    Free, open source, and extensible.</h2>
+    <div class="btnrow">
+      <a href="/sign.html"><p>Sign</p></a>
+      or
+      <a href="/verify.html"><p>Verify</p></a>
+    </div>
+  </div>
+  <div class="explanation1">
+    <h1>But how does it work?</h1>
+    <br/>
+    <h2>Signature</h2>
+    <div class="e1d">
+      <div class="icondesc">
+        <img src="./icons/file_all.svg" width="64">
+        <p>User A gives us a file</p>
+      </div>
+      <img src="./icons/plus.svg" width="32">
+      <div class="icondesc">
+        <img src="./icons/file_tsig.svg" width="64">
+        <p>We give user A a time signature file</p>
+      </div>
+      <img src="./icons/result.svg" width="32">
+      <div class="icondesc">
+        <img src="./icons/email.svg" width="64">
+        <p>User A sends their file and time signature to user B</p>
+      </div>
+    </div>
+    <br/>
+    <h2>Verification</h2>
+    <div class="e1d">
+      <div class="double_sized icondesc">
+        <div class="plus_chain">
+          <img src="./icons/file_all.svg" width="64">
+          <img src="./icons/plus.svg" width="32">
+          <img src="./icons/file_tsig.svg" width="64">
+        </div>
+        <p>User B gives us user A's file and time signature</p>
+      </div>
+      <img src="./icons/result.svg" width="32">
+      <div class="icondesc">
+        gap: 20px;
+        <img src="./icons/time.svg" width="64">
+        <p>We give the time signature's creation time</p>
+      </div>
+    </div>
+  </div>
+  <div class="explanation2">
+    <h1>Right, but how does it <i>really</i> work?</h1>
+    <br/>
+    <h2>Signature</h2>
+    <div class="e2d e2d1">
+      <div class="row">
+        <div class="icondesc">
+          <img src="./icons/hash.svg" width="64">
+          <p>We get the hash of the file</p>
+        </div>
+        <div class="centericon">
+          <img src="./icons/result.svg" width="32">
+        </div>
+        <div class="icondesc">
+          <img src="./icons/lock.svg" width="64">
+          <p>We encrypt the timestamp with the file hash so data exposed by more extended usages of the protocol dont get leaked if a tsig file gets lost</p>
+        </div>
+        <div class="centericon">
+          <img src="./icons/result.svg" width="32">
+        </div>
+        <div class="icondesc">
+          <img src="./icons/verified.svg" width="64">
+          <p>We return a time signature</p>
+        </div>
+      </div>
+      <div class="row scndrow">
+        <div class="centericon">
+          <img src="./icons/plus.svg" width="32">
+        </div>
+        <div class="centericon">
+          <img src="./icons/plus.svg" width="32">
+        </div>
+      </div>
+      <div class="row thrdrow">
+        <div class="icondesc">
+          <img src="./icons/data.svg" width="64">
+          <p>We get the timestamp (other data may be added by extended uses of the protocol)</p>
+        </div>
+        <div class="icondesc floe_done">
+          <img src="./icons/privkey.svg" width="64">
+          <p>We get our private key</p>
+        </div>
+      </div>
+    </div>
+    <br/>
+    <h2>Verification</h2>
+    <div class="e2d e2d2">
+      <div class="row thrdrow">
+        <div class="icondesc"></div>
+        <div class="icondesc">
+          <img src="./icons/file_tsig.svg" width="64">
+          <p>We get the timestamp (other data may be added by extended uses of the protocol)</p>
+        </div>
+        <div class="icondesc floe_done">
+          <img src="./icons/hash.svg" width="64">
+          <p>We get the file hash</p>
+        </div>
+      </div>
+      <div class="row scndrow">
+        <div class="centericon"></div>
+        <div class="centericon">
+          <img src="./icons/plus.svg" width="32">
+        </div>
+        <div class="centericon">
+          <img src="./icons/plus.svg" width="32">
+        </div>
+      </div>
+      <div class="row">
+        <div class="icondesc">
+          <img src="./icons/authority.svg" width="64">
+          <p>We get the authority of the signature</p>
+        </div>
+        <div class="centericon">
+          <img src="./icons/result.svg" width="32">
+        </div>
+        <div class="icondesc">
+          <img src="./icons/pubkey.svg" width="64">
+          <p>We get the authority's public key from DNS or HTTP(S)</p>
+        </div>
+        <div class="centericon">
+          <img src="./icons/result.svg" width="32">
+        </div>
+        <div class="icondesc">
+          <img src="./icons/lock.svg" width="64">
+          <p>We unlock the second layer of encryption</p>
+        </div>
+        <div class="centericon">
+          <img src="./icons/result.svg" width="32">
+        </div>
+        <div class="icondesc">
+          <img src="./icons/data.svg" width="64">
+          <p>We unlock the first layer of encryption and get our original data</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

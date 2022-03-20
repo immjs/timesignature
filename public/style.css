@@ -1,0 +1,196 @@
+html, body {
+  width: 100%;
+  height: 100%;
+  font-family: 'IBM Plex Serif', serif;
+  margin: 0;
+  padding: 0;
+}
+
+h1 {
+  font-size: 3em;
+  font-weight: bold;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+
+h2 {
+  font-size: 2em;
+  font-weight: bold;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+
+.header {
+  width: calc(100% - 80px);
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: linear-gradient(219.8deg, #FEA972 11.54%, #FF70A5 50.79%, #8B0FFD 95.81%);
+  gap: 20px;
+}
+
+.explanation1 {
+  width: calc(100% - 80px);
+  padding: 40px;
+}
+
+.e1d {
+  width: calc(50% - 80px);
+  padding: 40px;
+  display: flex;
+  margin: auto;
+}
+
+.e1d p {
+  font-size: 1.25em;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+
+.icondesc {
+  width: calc((100% - 2 * 32px) / 3);
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+.e1d > img {
+  width: 32px;
+  height: 32px;
+  margin-top: 16px;
+}
+
+.plus_chain {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  justify-content: space-evenly;
+  width: 100%;
+}
+
+.double_sized {
+  width: calc(100% - (100% - 2 * 32px) / 3) !important;
+}
+
+.btnrow {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: baseline;
+  width: 100%;
+  gap: 10px;
+}
+
+.btnrow > a {
+  padding: 15px;
+  border-radius: 20px;
+  text-align: center;
+  background-color: #000;
+  font-weight: bold;
+  text-decoration: none;
+  cursor: pointer;
+  transition: text-shadow 0.1s ease-in-out;
+  text-shadow: #fff3 0px 0px 5px;
+}
+
+.btnrow > a:hover {
+  text-shadow: #fff5 0px 0px 10px;
+}
+
+.btnrow > a:active {
+  transition: none;
+  background-color: #111;
+}
+
+.btnrow > a > p {
+  margin: 0px;
+  font-size: 1.25em;
+  background: linear-gradient(50.2deg, #FEA972 11.54%, #FF70A5 50.79%, #8B0FFD 95.81%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.explanation2 {
+  background-color: #000;
+  color: #fff;
+  width: calc(100% - 80px);
+  padding: 40px;
+}
+
+.explanation2 img {
+  filter: invert();
+}
+
+.e2d {
+  width: calc(50% - 80px);
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin: auto;
+}
+
+.e2d .row {
+  gap: 20px;
+  display: flex;
+  flex-direction: row;
+}
+
+.e2d .centericon {
+  width: 32px;
+}
+
+.e2d1 .row .icondesc,
+.e2d1 .scndrow .centericon {
+  width: calc((100% - 2 * 32px) / 3);
+}
+
+.e2d2 .row .icondesc,
+.e2d2 .scndrow .centericon {
+  width: calc((100% - 3 * 32px) / 4);
+}
+
+.e2d .scndrow, .e2d .thrdrow {
+  gap: 32px;
+}
+
+.e2d1 .file_hash { /* First Layer of Encryption */
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.e2d1 .floe { /* First Layer of Encryption */
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.e2d1 .ts_added_data {
+  grid-column: 1;
+  grid-row: 3;
+}
+
+.e2d1 .floe_done { /* First Layer of Encryption done */
+  grid-column: 3;
+  grid-row: 1;
+}
+
+.e2d1 .sloe { /* Second Layer of Encryption */
+  grid-column: 3;
+  grid-row: 2;
+}
+
+.e2d1 .privkey {
+  grid-column: 3;
+  grid-row: 3;
+}
+
+.centericon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
