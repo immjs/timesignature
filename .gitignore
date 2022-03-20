@@ -4,3 +4,5 @@ env/
 
 src/env.ts
 dist/env.js
+
+public/
