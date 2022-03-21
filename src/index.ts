@@ -4,7 +4,7 @@ import { promises as fsp } from 'fs';
 import Fastify from 'fastify';
 import FastifyCors from 'fastify-cors';
 import sign from './sign.js';
-import verify from './verify/node.js';
+import verify from './verify.js';
 import path from 'path';
 
 let publicKey: string;
