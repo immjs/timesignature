@@ -9,7 +9,7 @@ const fs_1 = require("fs");
 const fastify_1 = __importDefault(require("fastify"));
 const fastify_cors_1 = __importDefault(require("fastify-cors"));
 const sign_js_1 = __importDefault(require("./sign.js"));
-const node_js_1 = __importDefault(require("./verify/node.js"));
+const verify_js_1 = __importDefault(require("./verify.js"));
 const path_1 = __importDefault(require("path"));
 let publicKey;
 let privateKey;
@@ -95,7 +95,7 @@ fastify.post('/api/verify', {
     const { hash, signature } = request.body;
     // Convert hash to buffer
     const hashBuffer = Buffer.from(hash, 'hex');
-    const [isValid, signatureData] = await (0, node_js_1.default)(hashBuffer, signature, publicKey);
+    const [isValid, signatureData] = await (0, verify_js_1.default)(hashBuffer, signature, publicKey);
     if (!isValid)
         return reply.code(401).send(`Invalid signature: ${signatureData.message}`);
     reply.send(signatureData);

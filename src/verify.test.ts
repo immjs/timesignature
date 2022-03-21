@@ -1,4 +1,4 @@
-import verify from './node.js';
+import verify from './verify.js';
 import { expect } from 'chai';
 
 describe('Time Signature Verification', () => {
