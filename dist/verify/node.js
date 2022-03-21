@@ -46,7 +46,7 @@ async function verify(str, signature, pubkey) {
                 });
             });
             // Fetch key over HTTP(S)
-            const pubkeyHttp = (0, node_fetch_1.default)(`${domain}/public`).then(res => res.text());
+            const pubkeyHttp = (0, node_fetch_1.default)(`${domain}/api/public`).then(res => res.text());
             pubkeyStr = await Promise.any([pubkeyDns, pubkeyHttp]);
         }
         catch (err) {

@@ -56,7 +56,7 @@ export default async function verify(
         });
       });
       // Fetch key over HTTP(S)
-      const pubkeyHttp: Promise<string> = fetch(`${domain}/public`).then(res => res.text());
+      const pubkeyHttp: Promise<string> = fetch(`${domain}/api/public`).then(res => res.text());
       pubkeyStr = await Promise.any([pubkeyDns, pubkeyHttp]);
     } catch (err) {
       return [false, new Error('Failed to fetch public key from DNS and HTTP')];
